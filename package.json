@@ -1,0 +1,35 @@
+{
+  "dependencies": {
+    "@apollo/client": "^3.11.8",
+    "@apollo/server": "^4.11.0",
+    "apollo-server": "^3.13.0",
+    "apollo-server-express": "^3.13.0",
+    "apollo-server-micro": "^3.13.0",
+    "axios": "^1.7.7",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "graphql": "^16.9.0",
+    "graphql-upload": "^13.0.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "mime-types": "^2.1.35",
+    "minio": "^8.0.1",
+    "nodemon": "^3.1.7",
+    "pg": "^8.13.0",
+    "razorpay": "^2.9.4",
+    "typesense": "^1.8.2"
+  },
+  "name": "server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
