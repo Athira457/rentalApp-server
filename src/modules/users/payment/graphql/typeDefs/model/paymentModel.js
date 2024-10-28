@@ -2,10 +2,23 @@ import { gql } from 'apollo-server-micro';
 
 // Define the payment type
 const paymentType = gql`
- type RazorpayPayment {
-    razorpay_payment_id: String!
-    razorpay_order_id: String!
-    razorpay_signature: String!
-  }
+type RazorpayOrderResponse {
+  id: String!
+  amount: Int!
+  currency: String!
+  receipt: String!
+}
+
+type PaymentVerificationResponse {
+  success: Boolean!
+  message: String!
+}
+
+type payment{
+  id: ID
+  bookingId: Int
+  amount: Int
+  status: String
+}
 `;
 export default paymentType;

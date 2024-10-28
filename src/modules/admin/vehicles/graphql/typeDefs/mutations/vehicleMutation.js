@@ -20,6 +20,10 @@ scalar Upload
         isprimary: Int!
         vehicleid: ID
         ): ImageNew
+
+        updateVehicleNew(price: Float, quantity: Int, description: String): VehicleNew
+        updatePrimaryImage(vehicleId: ID, imageId: ID): VehicleNew
+        deleteVehicleNew(id: ID!): VehicleNew
     }
         type vehicleNew{
         id: ID!

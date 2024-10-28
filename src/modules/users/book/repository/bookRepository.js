@@ -34,5 +34,15 @@ class BookRepository {
         }
       }
 
+      async fetchAllBookings() {
+        try {
+          // Fetch all bookings from the database
+          const query = 'SELECT * FROM book';
+          const result = await pool.query(query);
+          return result.rows;
+        } catch (error) {
+          throw new Error(`Database query failed: ${error.message}`);
+        }
+      }
 }
 export default new BookRepository();

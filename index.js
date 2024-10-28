@@ -5,12 +5,12 @@ import createUsersTable from './src/config/migrations/userTable.js';
 import { graphqlUploadExpress } from 'graphql-upload';
 import { ApolloServer } from 'apollo-server-express';
 import { mergeSchemas } from '@graphql-tools/schema';
-import userSchema from './src/modules/users/graphql/userSchema.js';
+import userSchema from './src/modules/users/register/graphql/userSchema.js';
 import vehicleSchema from './src/modules/admin/cars/graphql/schema.js'
 import manuSchema from './src/modules/admin/manufactures/graphql/schema.js';
 import carSchema from './src/modules/admin/vehicles/graphql/schema.js';
 import bookSchema from './src/modules/users/book/graphql/schema.js';
-
+import paymentSchema from './src/modules/users/payment/graphql/schema.js';
 
 dotenv.config();
 const serverUrl = process.env.SERVER_URL;
@@ -27,7 +27,7 @@ createUsersTable();
 
 // Merge the schemas into one
 const schemaNew = mergeSchemas({
-  schemas: [vehicleSchema, userSchema, manuSchema, carSchema, bookSchema],
+  schemas: [vehicleSchema, userSchema, manuSchema, carSchema, bookSchema, paymentSchema],
 });
 
 const apolloServer = new ApolloServer({

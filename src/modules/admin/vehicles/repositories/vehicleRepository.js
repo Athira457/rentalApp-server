@@ -44,7 +44,7 @@ class VehicleRepository {
     return result.rows;
   }
 
-//searching vehicle details by using id  
+  //searching vehicle details by using id  
   async findByIdVehicle(id) {
     const query = 'SELECT * FROM vehicletbl WHERE id = $1';
     const result = await pool.query(query, [id]);
@@ -58,23 +58,59 @@ class VehicleRepository {
     return result.rows;
   }
 
-//searching image details by using id  
+  //searching image details by using id  
   async findByIdImage(id) {
     const query = 'SELECT * FROM imagetbl WHERE id = $1';
     const result = await pool.query(query, [id]);
     return result.rows;
   }
 
+  //Fetch primary image by vehicle id
   async getPrimaryImageByVehicleId(vehicleid) {
     const query = 'SELECT * FROM imagetbl WHERE vehicleid = $1 AND isprimary = true';
     const result = await pool.query(query, [vehicleid]);
     return result.rows[0];
   }
 
+  //fetch other images by using vehicle id
   async getSecondaryImageByVehicleId(vehicleid) {
     const query = 'SELECT * FROM imagetbl WHERE vehicleid = $1 AND isprimary = false';
     const result = await pool.query(query, [vehicleid]);
     return result.rows;
+  }
+
+  //update vehicle by id
+  async updateVehicleNew(id, { price, quantity, description }) {
+    const query = `
+      UPDATE vehicletbl
+      SET price = $1, quantity = $2, description = $3
+      WHERE id = $4
+      RETURNING *;
+    `;
+    const values = [price, quantity, description, id];
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  };
+
+  async updatePrimaryImage(vehicleId, newPrimaryImageId) {
+    const resetQuery = `
+      UPDATE imagetbl
+      SET isprimary = false
+      WHERE vehicleid = $1;
+    `;
+    const setPrimaryQuery = `
+      UPDATE imagetbl
+      SET isprimary = true
+      WHERE vehicleid = $1 AND id = $2;
+    `;
+    await pool.query(resetQuery, [vehicleId]);
+    await pool.query(setPrimaryQuery, [vehicleId, newPrimaryImageId]);
+  }
+
+  async deleteVehicle(id) {
+    const query = 'DELETE FROM vehicletbl WHERE id = $1 RETURNING id';
+    const result = await pool.query(query, [id]);
+    return result;
   }
 
 }

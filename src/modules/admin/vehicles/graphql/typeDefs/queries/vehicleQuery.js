@@ -9,7 +9,8 @@ export const carQuery = gql`
     type Query {
     getAllVehiclesNew: [VehicleNew!]!
     getVehicleImageById(id: ID!): VehicleNew
-    searchVehicle(searchTerm: String!): [VehicleNew]
-    searchVehicles(searchTerm: String, priceRange: PriceRangeInput): [VehicleNew]
+    
+    searchVehiclesByName(searchTerm: String): [CollectionVehicle]
+    filterVehiclesByPrice(minPrice: Float, maxPrice: Float): [CollectionVehicle]
   }
 `;

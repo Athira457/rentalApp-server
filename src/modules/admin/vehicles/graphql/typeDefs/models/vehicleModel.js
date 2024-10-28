@@ -34,6 +34,21 @@ const carModel = gql`
     isprimary: Int
     vehicleid: ID
   }
+
+  type CollectionVehicle {
+  id: String
+  manufacturer: String
+  model: String
+  name: String
+  description: String
+  price: Float
+  quantity: Int
+  seats: String
+  fuel: String
+  gear: String
+  primaryImage: String
+  secondaryImages: [String]
+}
 `;
 
 export default carModel;

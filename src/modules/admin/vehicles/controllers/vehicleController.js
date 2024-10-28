@@ -102,19 +102,64 @@ class VehicleController {
   }
 
   // Search vehicles using Typesense
-  async searchVehicles({ manufacturer, model, minPrice, maxPrice }) {
-    try {
-      const searchQuery = {
-        q: `${manufacturer || ''} ${model || ''}`.trim(),
-        query_by: 'manufacturer,model',
-        filter_by: `price:>=${minPrice} && price:<=${maxPrice}`,
-      };
+  async searchVehiclesByName(manufacturer, model) {
+    const searchParameters = {
+      q: `${manufacturer || ''} ${model || ''}`.trim(),
+      query_by: 'manufacturer,model',
+    };
 
-      const response = await typesenseClient.collections('vehicles').documents().search(searchQuery);
-      return response.hits.map(hit => hit.document);
+    try {
+      const searchResults = await typesenseClient.collections('vehicles').documents().search(searchParameters);
+      return searchResults.hits.map(hit => hit.document);
     } catch (error) {
-      throw new Error(`Failed to fetch vehicles: ${error.message}`);
+      console.error("Error searching vehicles:", error);
+      throw new Error("Unable to search vehicles");
     }
+  }
+  //filter vehicle by using typesense
+  async filterVehiclesByPrice(minPrice, maxPrice) {
+    const min = parseFloat(minPrice);
+    const max = parseFloat(maxPrice);
+    const filterParameters = {
+      q: '*', 
+      filter_by: `price:>=${min} && price:<=${max}`,
+    };
+    try {
+      const filterResults = await typesenseClient.collections('vehicles').documents().search(filterParameters);
+      return filterResults.hits.map(hit => hit.document);
+    } catch (error) {
+      console.error("Error filtering vehicles by price:", error);
+      throw new Error("Unable to filter vehicles by price");
+    }
+  }
+
+   // Update vehicle price, quantity, and description
+   async updateVehicleNew(id, price, quantity, description) {
+    try {
+      await vehicleRepository.updateVehicleNew(id, price, quantity, description);
+      return { id, price, quantity, description };
+    } catch (error) {
+      throw new Error(`Failed to update vehicle: ${error.message}`);
+    }
+  }
+
+  // Update the primary image for a vehicle
+  async updatePrimaryImage(vehicleId, imageId) {
+    try {
+      await vehicleRepository.updatePrimaryImage(vehicleId, imageId);
+      return { vehicleId }; 
+    } catch (error) {
+      throw new Error(`Failed to update primary image: ${error.message}`);
+    }
+  }
+
+  // Delete vehicle by id
+  async deleteVehicleNew(id) {
+    const deletedVehicle = await vehicleRepository.deleteVehicle(id);
+    if (!deletedVehicle) {
+      throw new Error('Vehicle not found');
+    }
+    return deletedVehicle; 
   }
 }
 

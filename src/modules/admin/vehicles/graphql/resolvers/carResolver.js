@@ -14,13 +14,12 @@ const resolvers = {
     },
     
     //search vehicle by manufacturer or model and filter vehicle by price
-    searchVehicles: async (_, { searchTerm, priceRange }) => {
-      const { min, max } = priceRange;
-      return await VehicleController.searchVehicles({
-        searchTerm,
-        minPrice: min,
-        maxPrice: max,
-      });
+    searchVehiclesByName: async (_, {searchTerm}) => {
+      return VehicleController.searchVehiclesByName(searchTerm);
+    },
+
+    filterVehiclesByPrice: async (_, { minPrice, maxPrice }) => {    
+      return VehicleController.filterVehiclesByPrice(minPrice, maxPrice);
     },
   },
 
@@ -35,6 +34,21 @@ const resolvers = {
     registerImages: async (_, { images, isprimary, vehicleid }) => {
       return await VehicleController.registerImages(images, isprimary, vehicleid);
     },
+
+     // Resolver for updating the vehicle
+    updateVehicleNew: async (_, { price, quantity, description }) => {
+      return await VehicleController.updateVehicleNew(price, quantity, description);
+    },
+    // Resolver for updating the primary image
+    updatePrimaryImage: async (_, { vehicleId, imageId }) => {
+      return await VehicleController.updatePrimaryImage(vehicleId, imageId);
+    },
+
+    // Delete vehicle by id
+    deleteVehicleNew: async (_, { id }) => {
+      return await VehicleController.deleteVehicleNew(id);
+    },
+
   },
 
   Upload: GraphQLUpload,

@@ -1,5 +1,5 @@
 // user repository file handles Queries into database
-import pool from '../../../config/DBconnect/db.js';
+import pool from '../../../../config/DBconnect/db.js';
 import bcrypt from 'bcrypt';
 
 class UserRepository {

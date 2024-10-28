@@ -18,6 +18,17 @@ class BookController {
       throw new Error(`Failed to create booking: ${error.message}`);
     }
   }
+
+  async getAllBookings() {
+    try {
+      // Fetch all bookings from the repository
+      const bookings = await BookRepository.fetchAllBookings();
+      return bookings;
+    } catch (error) {
+      console.error('Error in getAllBookings:', error);
+      throw new Error(`Failed to fetch all bookings: ${error.message}`);
+    }
+  }
 }
 
 export default new BookController;

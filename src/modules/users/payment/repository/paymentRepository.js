@@ -2,16 +2,35 @@ import pool from '../../../../config/DBconnect/db.js';
 
 class PaymentRepository {
 
-    async processPayment(bookingId, razorpayPaymentId, razorpayOrderId, razorpaySignature) {
-        // Update the booking status or save the payment details in your database
-        const result = await pool.query(
-          `UPDATE payment
-           SET razorpayPaymentId = $1, razorpayOrderId = $2, razorpaySignature = $3 
-           WHERE id = $4 RETURNING *`,
-          [razorpayPaymentId, razorpayOrderId, razorpaySignature, bookingId]
-        );
-        return result.rows[0]; // Return the updated booking
-      }
+  async insertPayment(bookingId, amount, status) {
+    const query = `
+      INSERT INTO paymenttbl (book_id, amount, status)
+      VALUES ($1, $2, $3)
+      RETURNING *;
+    `;
+
+    const values = [bookingId, amount, status];
+    
+    try {
+      const result = await pool.query(query, values);
+      return result.rows[0]; 
+    } catch (error) {
+      console.error('Error inserting payment into database:', error);
+      throw new Error('Database insertion error');
+    }
+  }
+
+  async findByIdPaymeny(id) {
+    const query = 'SELECT * FROM paymenttbl WHERE id = $1';
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
+  }
+
+  async fetchAllPayments(){
+    const query = 'SELECT * FROM paymenttbl';
+    const result = await pool.query(query);
+    return result.rows;
+  }
 
 }
 export default new PaymentRepository();
