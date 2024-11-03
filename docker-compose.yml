@@ -1,0 +1,48 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '4000:4000'
+    depends_on:
+      - minio
+      - typesense
+    environment:
+      # Database connection details for local PostgreSQL
+      DB_USER: postgres        
+      DB_PASSWORD: 12345       
+      DB_NAME: vehicleDB        
+      DB_HOST: host.docker.internal 
+      DB_PORT: 5432            
+
+  minio:
+    image: minio/minio
+    command: server --console-address ":9001" /data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - '9002:9000'
+      - '9003:9001'
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  typesense:
+    image: typesense/typesense:0.23.1
+    ports:
+      - '8108:8108'
+    environment:
+      TYPESENSE_API_KEY: iwsLoaNdi59hCTA64c74UjAQOIRVmxYM
+    volumes:
+      - typesense_data:/data
+    command: typesense-server --data-dir /data --api-key==iwsLoaNdi59hCTA64c74UjAQOIRVmxYM
+
+volumes:
+  minio_data:
+  typesense_data:

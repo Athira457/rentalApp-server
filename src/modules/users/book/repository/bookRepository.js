@@ -44,5 +44,15 @@ class BookRepository {
           throw new Error(`Database query failed: ${error.message}`);
         }
       }
+
+      async getBookingById(userId){
+        try{
+          const query = 'SELECT * FROM book WHERE user_id=$1';
+          const result = await pool.query(query,[userId]);
+          return result.rows; 
+        }catch (error){
+          throw new Error(`Database query failed: ${error.message}`)
+        }
+      }
 }
 export default new BookRepository();

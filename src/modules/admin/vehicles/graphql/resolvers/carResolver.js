@@ -35,18 +35,29 @@ const resolvers = {
       return await VehicleController.registerImages(images, isprimary, vehicleid);
     },
 
-     // Resolver for updating the vehicle
-    updateVehicleNew: async (_, { price, quantity, description }) => {
-      return await VehicleController.updateVehicleNew(price, quantity, description);
-    },
-    // Resolver for updating the primary image
-    updatePrimaryImage: async (_, { vehicleId, imageId }) => {
-      return await VehicleController.updatePrimaryImage(vehicleId, imageId);
+    updateImagesByVehicleId: async (_, { images, isprimary, vehicleid }) => {
+      return await VehicleController.updateImagesByVehicleId(images, isprimary, vehicleid);
     },
 
-    // Delete vehicle by id
+     // Resolver for updating the vehicle
+    updateVehicleNew: async (_, {  id, price, quantity, description }) => {
+      return await VehicleController.updateVehicleNew(id,price, quantity, description);
+    },
+
+    // Delete vehicle by its id
     deleteVehicleNew: async (_, { id }) => {
       return await VehicleController.deleteVehicleNew(id);
+    },
+
+    // Delete images by vehicle id
+    deleteImages: async (_, { vehicleid }) => {
+        const deletedImages = await VehicleController.deleteImages(vehicleid);
+        return deletedImages;
+    },
+    
+    reduceVehicleQuantity: async (_,{ id }) => {
+      const reducecar = await VehicleController.reduceVehicleQuantity(id);
+      return reducecar;
     },
 
   },

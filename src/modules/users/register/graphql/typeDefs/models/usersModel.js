@@ -12,12 +12,14 @@ const userType = gql`
     country: String
     pincode: String
     password: String
+    imageurl: String
   }
     
   type AuthPayload {
     token: String
     user: User
   }
+
 `;
 
 export default userType;

@@ -80,7 +80,7 @@ class VehicleRepository {
   }
 
   //update vehicle by id
-  async updateVehicleNew(id, { price, quantity, description }) {
+  async updateVehicleNew(id, price, quantity, description ) {
     const query = `
       UPDATE vehicletbl
       SET price = $1, quantity = $2, description = $3
@@ -92,25 +92,22 @@ class VehicleRepository {
     return result.rows[0];
   };
 
-  async updatePrimaryImage(vehicleId, newPrimaryImageId) {
-    const resetQuery = `
-      UPDATE imagetbl
-      SET isprimary = false
-      WHERE vehicleid = $1;
-    `;
-    const setPrimaryQuery = `
-      UPDATE imagetbl
-      SET isprimary = true
-      WHERE vehicleid = $1 AND id = $2;
-    `;
-    await pool.query(resetQuery, [vehicleId]);
-    await pool.query(setPrimaryQuery, [vehicleId, newPrimaryImageId]);
-  }
-
   async deleteVehicle(id) {
     const query = 'DELETE FROM vehicletbl WHERE id = $1 RETURNING id';
     const result = await pool.query(query, [id]);
     return result;
+  }
+
+  async deleteImagesByVehicleId(vehicleid) {
+    const query = 'DELETE FROM imagetbl WHERE vehicleid = $1 RETURNING *';
+    const result = await pool.query(query, [vehicleid]);
+    return result.rows;
+  }
+
+  async reduceVehicleQuantity(id){
+    const query = 'UPDATE vehicletbl SET quantity = quantity - 1 WHERE id = $1 RETURNING *';
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
   }
 
 }

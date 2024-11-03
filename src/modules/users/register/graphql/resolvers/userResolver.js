@@ -1,5 +1,6 @@
 import  UserRepository from '../../repository/userRepository.js';
 import UserController from '../../controllers/userController.js';
+import { GraphQLUpload } from 'graphql-upload';
 const userResolvers = {
   Query: {
     // Fetch all users
@@ -30,6 +31,7 @@ const userResolvers = {
   },
   
   Mutation: {
+    // mutation to register new user
     registerUser: async (_, { name, email, phone, city, state, country, pincode, password}) => {
       const newUser = await UserRepository.createUser({
         name,
@@ -47,7 +49,21 @@ const userResolvers = {
     loginUser: async (_, { email, password }) => {
       return await UserController.loginUser(email, password);
     },
-  }
+
+    // mutation to update existing user
+    updateProfile: async (_, { id, name, email, phone, city, state, country, pincode, file }) => {
+      try {
+        console.log("file :",file);
+        const updatedUser = await UserController.updateProfile(id, name, email, phone, city, state, country, pincode, file);
+        console.log("update user:",updatedUser);
+        return updatedUser;
+      } catch (error) {
+        throw new Error(`Error updating profile: ${error.message}`);
+      }
+    },
+
+  },
+  Upload: GraphQLUpload,
 };
 
 export default userResolvers;

@@ -21,9 +21,16 @@ scalar Upload
         vehicleid: ID
         ): ImageNew
 
-        updateVehicleNew(price: Float, quantity: Int, description: String): VehicleNew
-        updatePrimaryImage(vehicleId: ID, imageId: ID): VehicleNew
+        updateImagesByVehicleId(
+        images: [Upload]
+        isprimary: Int
+        vehicleid: ID
+        ): ImageNew
+
+        updateVehicleNew(id: ID,price: Float, quantity: Int, description: String): VehicleNew
+        reduceVehicleQuantity(id: ID!): VehicleNew
         deleteVehicleNew(id: ID!): VehicleNew
+        deleteImages(vehicleid: ID): [ImageNew]
     }
         type vehicleNew{
         id: ID!

@@ -1,6 +1,6 @@
 // user repository file handles Queries into database
 import pool from '../../../../config/DBconnect/db.js';
-import bcrypt from 'bcrypt';
+import CryptoJS from 'crypto-js';
 
 class UserRepository {
   // Fetch all users from the database
@@ -11,7 +11,7 @@ class UserRepository {
 
   // Fetch user by using email
   async getUserByEmail(email) {
-    try {
+    try{
       const query = 'SELECT * FROM usermodel WHERE email = $1';
       const result = await pool.query(query, [email]);
       return result.rows[0]; 
@@ -44,7 +44,7 @@ class UserRepository {
   async createUser(userData) {
     try {
       const { name, email, phone, city, state, country, pincode, password } = userData;
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = CryptoJS.SHA256(password).toString();
       const result = await pool.query(
         'INSERT INTO usermodel (name, email, phone, city, state, country, pincode, password) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
         [name, email, phone, city, state, country, pincode, hashedPassword]
@@ -52,9 +52,31 @@ class UserRepository {
       return result.rows[0];
     } catch (error) {
       console.error('Error creating user:', error);
-      throw error;
+      throw error; 
     }
   }
+  
+
+  async updateUser(id, name, email, phone, city, state, country, pincode, imageurl) {
+    const query = `
+      UPDATE usermodel
+      SET 
+        name = $1,
+        email = $2,
+        phone = $3,
+        city = $4,
+        state = $5,
+        country = $6,
+        pincode = $7,
+        imageurl = $8
+      WHERE id = $9
+      RETURNING *;
+    `;
+    const values = [name, email, phone, city, state, country, pincode, imageurl, id];
+    const result = await pool.query(query, values);
+    return result.rows[0];
+  }
+
 }
 
 export default new UserRepository();

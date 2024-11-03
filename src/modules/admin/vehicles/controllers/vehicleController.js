@@ -101,6 +101,74 @@ class VehicleController {
       }
   }
 
+  // Update images for an existing vehicle
+async updateImagesByVehicleId(images, isprimary, vehicleid) {
+  const imagePaths = [];
+  let primaryImage = '';
+  const secondaryImages = [];
+  
+  try {
+      if (images && images.length > 0) {
+          for (let index = 0; index < images.length; index++) {
+              // Wait for the image promise to resolve
+              const img = await images[index];
+              const { createReadStream, filename, mimetype } = img;
+              const stream = createReadStream();
+              
+              // Upload to MinIO
+              await minioClient.putObject('vehicle', filename, stream, {
+                  'Content-Type': mimetype || 'application/octet-stream',
+              });
+
+              const presignedUrl = await minioClient.presignedGetObject('vehicle', filename);  
+              imagePaths.push(presignedUrl);
+
+              // Prepare data for the new image entry
+              const newData = {
+                  image: presignedUrl,
+                  isprimary: index === isprimary ? true : false,
+                  vehicleid,
+              };
+              
+              await vehicleRepository.addImages(newData);
+
+              if (newData.isprimary) {
+                  primaryImage = newData.image;
+              } else {
+                  secondaryImages.push(newData.image);
+              }
+          }
+      }
+
+      // Retrieve the current vehicle document from Typesense
+      const existingVehicle = await typesenseClient
+          .collections('vehicles')
+          .documents(vehicleid)
+          .retrieve();
+
+      // Update primary and secondary images in the existing document
+      const updatedVehicleData = {
+          ...existingVehicle,
+          primaryImage: primaryImage || existingVehicle.primaryImage, 
+          secondaryImages: [
+              ...existingVehicle.secondaryImages, 
+              ...secondaryImages
+          ], // Append new secondary images to existing ones
+      };
+
+      // Update the Typesense document with the new images
+      await typesenseClient
+          .collections('vehicles')
+          .documents(vehicleid)
+          .update(updatedVehicleData);
+
+      return imagePaths;
+      } catch (error) {
+          throw new Error(`Image update failed: ${error.message}`);
+      }
+    }
+
+
   // Search vehicles using Typesense
   async searchVehiclesByName(manufacturer, model) {
     const searchParameters = {
@@ -143,16 +211,6 @@ class VehicleController {
     }
   }
 
-  // Update the primary image for a vehicle
-  async updatePrimaryImage(vehicleId, imageId) {
-    try {
-      await vehicleRepository.updatePrimaryImage(vehicleId, imageId);
-      return { vehicleId }; 
-    } catch (error) {
-      throw new Error(`Failed to update primary image: ${error.message}`);
-    }
-  }
-
   // Delete vehicle by id
   async deleteVehicleNew(id) {
     const deletedVehicle = await vehicleRepository.deleteVehicle(id);
@@ -160,6 +218,24 @@ class VehicleController {
       throw new Error('Vehicle not found');
     }
     return deletedVehicle; 
+  }
+
+  async deleteImages(vehicleid) {
+    try {
+      const result = await vehicleRepository.deleteImagesByVehicleId(vehicleid);
+      return result;
+    } catch (error) {
+      throw new Error(`Failed to delete images: ${error.message}`);
+    }
+  }
+
+  async reduceVehicleQuantity(id){
+    try{
+      const result = await vehicleRepository.reduceVehicleQuantity(id);
+      return result;
+    }catch{
+      throw new Error(`Failed to reduce quantity: ${error.message}`);
+    }
   }
 }
 

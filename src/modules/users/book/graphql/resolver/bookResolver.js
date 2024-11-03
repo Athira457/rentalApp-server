@@ -23,6 +23,11 @@ const resolvers = {
         throw new Error(`Error fetching all bookings: ${error.message}`);
       }
     },
+
+    getBookingById: async (_, { userId }) => {
+      const booking = await BookController.getBookingById(userId);
+      return booking;
+    },
   },
 
   Mutation: {

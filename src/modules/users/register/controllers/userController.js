@@ -1,11 +1,13 @@
+// Controller to handle user registration and fetching users
 import UserRepository from '../repository/userRepository.js';
 import userValidationSchema from '../requests/userRequest.js';
+import userRepository from '../repository/userRepository.js';
+import minioClient from '../../../../config/minioConfig/minioConfig.js';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import CryptoJS from 'crypto-js';
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Controller to handle user registration and fetching users
 class UserController {
   // Controller method to get all users
   async getAllUser(req, res) {
@@ -55,7 +57,8 @@ class UserController {
       }
 
       // Check if the password is correct
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      const hashedPassword = user.password;
+      const isPasswordValid = CryptoJS.SHA256(password).toString() === hashedPassword;
       if (!isPasswordValid) {
         throw new Error('Invalid credentials');
       }
@@ -78,6 +81,41 @@ class UserController {
       throw new Error(error.message);
     }
   }
+
+  async uploadImage(file) {
+    const bucketName = 'profilepic';
+    const objectName = `user-images/${file.name}`; 
+  
+    return new Promise((resolve, reject) => {
+      minioClient.putObject(bucketName, objectName, file.data, file.size, (err, etag) => {
+        if (err) {
+          return reject(err);
+        }
+        // Return the public URL of the uploaded image
+        const imageurl = `${minioClient.protocol}://${minioClient.endPoint}/${bucketName}/${objectName}`;
+        resolve(imageurl);
+        console.log(imageurl);
+      });
+    });
+  }
+
+  async updateProfile(id, name, email, phone, city, state, country, pincode, file) {
+    let imageurl = null;
+  
+    // Upload the image if a file is provided
+    if (file) {
+      try {
+        imageurl = await uploadImage(file);
+      } catch (error) {
+        throw new Error(`Failed to upload image: ${error.message}`);
+      }
+    }
+  
+    // Update user profile in the database
+    const updatedUser = await userRepository.updateUser(id, name, email, phone, city, state, country, pincode, imageurl);
+    return updatedUser;
+  }
+
 }
 
 export default new UserController();
